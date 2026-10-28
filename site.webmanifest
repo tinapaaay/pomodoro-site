@@ -1,0 +1,11 @@
+{
+  "name": "Neumorphic Pomodoro Timer",
+  "short_name": "Pomodoro",
+  "description": "A local-first focus timer with tasks and progress history.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#dce5ec",
+  "background_color": "#dce5ec",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

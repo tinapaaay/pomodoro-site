@@ -1,0 +1,24 @@
+/* Local element defaults and the few layout utilities used by this page. */
+*, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e5e7eb; }
+html { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: Inter, system-ui, sans-serif; }
+body { margin: 0; line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+h1, h2, h3, h4, h5, h6, p, blockquote, dl, dd, figure, pre { margin: 0; }
+button, input, select, textarea { font: inherit; letter-spacing: inherit; color: inherit; margin: 0; padding: 0; }
+button, [type="button"], [type="submit"], [type="reset"] { -webkit-appearance: button; background-color: transparent; background-image: none; }
+button, [role="button"], summary { cursor: pointer; }
+:disabled { cursor: default; }
+a { color: inherit; text-decoration: inherit; }
+ol, ul { list-style: none; margin: 0; padding: 0; }
+fieldset { margin: 0; padding: 0; }
+legend { padding: 0; }
+img, svg, video, canvas { display: block; vertical-align: middle; }
+img, video { max-width: 100%; height: auto; }
+input::placeholder, textarea::placeholder { color: #6b7280; opacity: 1; }
+[hidden], dialog:not([open]) { display: none !important; }
+.relative { position: relative; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.mt-7 { margin-top: 1.75rem; }
+.space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem; }

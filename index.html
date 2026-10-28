@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neumorphic Pomodoro Timer</title>
+
+    <meta name="description" content="A local-first Pomodoro timer with customizable focus sessions, task planning, and progress history." />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#dce5ec" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Neumorphic Pomodoro Timer" />
+    <meta property="og:description" content="Plan your tasks, settle into focus, and track your progress." />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="base.css" />
+
+    <!-- Google Fonts: Short Stack for the hand-drawn note, Inter for clean numbers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Short+Stack&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tone.js for tactile acoustic pops and gentle bell alerts -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <section id="tabGuard" class="tab-guard" aria-labelledby="tabGuardTitle">
+      <h1 id="tabGuardTitle">Opening your timer…</h1>
+      <p id="tabGuardMessage" role="status">Checking for another open Pomodoro tab.</p>
+      <button id="tabGuardRetry" class="pill-btn" type="button" hidden>Try again</button>
+      <p><a href="help.html">Help</a> · <a href="privacy.html">Privacy &amp; saved data</a></p>
+      <button id="tabGuardRecovery" class="pill-btn" type="button" hidden>Download recovery copy</button>
+    </section>
+    <noscript>Enable JavaScript to use the Pomodoro timer. <a href="help.html">Read help</a> or <a href="privacy.html">how your data is stored</a>.</noscript>
+    <div id="pomodoroApp" hidden inert>
+    <div class="pomodoro-layout">
+      <div class="sidebar-shell" id="sidebarShell">
+        <button
+          type="button"
+          class="sidebar-toggle"
+          id="sidebarToggle"
+          aria-label="Show goals and calendar"
+          aria-controls="sidebarPanel"
+          aria-expanded="false"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <aside
+          class="sidebar-panel"
+          id="sidebarPanel"
+          aria-label="Goals and calendar"
+          aria-hidden="true"
+          inert
+        >
+          <button
+            type="button"
+            id="resetLayoutButton"
+            class="pill-btn reset-layout-button"
+          >
+            Reset layout
+          </button>
+          <p id="layoutResetStatus" class="sr-only" role="status"></p>
+          <!-- Quote Block -->
+          <div class="quote-box">
+            <div class="quote-bar"></div>
+            <div class="quote-text">
+              Where attention goes,<br />energy flows.
+            </div>
+          </div>
+
+          <section
+            class="sidebar-widget movable-widget profile-card"
+            id="profileWidget"
+            data-widget-name="Profile"
+            aria-label="Your profile"
+          >
+            <div class="widget-header profile-drag-bar">
+              <button
+                type="button"
+                class="widget-title widget-drag-handle"
+                aria-label="Move Profile card"
+                aria-describedby="widgetMoveHint"
+                title="Drag profile card"
+              >
+                <span class="widget-grip" aria-hidden="true">⠿</span>
+              </button>
+              <button
+                type="button"
+                class="widget-return"
+                aria-label="Return Profile to sidebar"
+                title="Return to sidebar"
+              >
+                ↶
+              </button>
+            </div>
+            <button
+              type="button"
+              class="avatar-wrapper avatar-upload-button"
+              id="avatarUploadButton"
+              aria-label="Add or change profile photo"
+              title="Click to add a picture"
+            >
+              <svg
+                class="avatar-svg"
+                id="profilePlaceholder"
+                viewBox="0 0 100 100"
+                fill="none"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="100" height="100" rx="20" fill="#e4edf3" />
+                <circle cx="19" cy="20" r="8" fill="#5882A0" />
+                <path
+                  d="M2 65C13 47 23 46 35 57C45 66 51 60 58 43C66 23 76 27 89 54C93 62 98 58 98 66V86Q98 96 86 97Q50 102 15 96Q2 94 2 65Z"
+                  fill="#5882A0"
+                />
+              </svg>
+              <img
+                id="profilePhoto"
+                class="profile-photo"
+                alt="Profile photo"
+                hidden
+              />
+              <span class="avatar-upload-overlay" aria-hidden="true"
+                >Change photo</span
+              >
+            </button>
+            <div class="profile-info">
+              <h2 class="user-name" id="profileName">Guest</h2>
+              <p class="user-role" id="profileRole"></p>
+              <span class="user-joined" id="profileJoined"
+                >joined since 2026</span
+              >
+              <button
+                class="btn-edit-profile"
+                type="button"
+                id="editProfileButton"
+              >
+                Edit Profile
+              </button>
+              <span class="user-focus" id="profileFocus"
+                >Total Focused: 0 min</span
+              >
+              <span
+                id="avatarUploadStatus"
+                class="avatar-upload-status"
+                role="status"
+                hidden
+              ></span>
+            </div>
+          </section>
+
+          <!-- Goal for today Widget -->
+          <div
+            class="sidebar-widget movable-widget"
+            id="goalWidget"
+            data-widget-name="Goal"
+          >
+            <div class="widget-header">
+              <button
+                type="button"
+                class="widget-title widget-drag-handle"
+                aria-label="Move Goal card"
+                aria-describedby="widgetMoveHint"
+                title="Drag to place on screen"
+              >
+                Goal for today:<span class="widget-grip" aria-hidden="true"
+                  >⠿</span
+                >
+              </button>
+              <button
+                type="button"
+                class="widget-return"
+                aria-label="Return Goal to sidebar"
+                title="Return to sidebar"
+              >
+                ↶
+              </button>
+            </div>
+            <div
+              class="goal-beads-row"
+              id="goalBeadsContainer"
+              role="group"
+              aria-label="Daily focus sessions"
+            ></div>
+          </div>
+
+          <section
+            class="sidebar-widget movable-widget weekly-stats"
+            id="weeklyStatsWidget"
+            data-widget-name="Weekly stats"
+            aria-label="Weekly focus statistics"
+          >
+            <div class="widget-header">
+              <button
+                type="button"
+                class="widget-title widget-drag-handle"
+                aria-label="Move Weekly stats card"
+                aria-describedby="widgetMoveHint"
+                title="Drag to place on screen"
+              >
+                Weekly stats<span class="widget-grip" aria-hidden="true"
+                  >⠿</span
+                >
+              </button>
+              <button
+                type="button"
+                class="widget-return"
+                aria-label="Return Weekly stats to sidebar"
+                title="Return to sidebar"
+              >
+                ↶
+              </button>
+            </div>
+            <p id="weeklyStatsRange" class="weekly-stats-range"></p>
+            <dl class="weekly-stats-grid">
+              <div>
+                <dt>Focus time</dt>
+                <dd id="weeklyFocusTime">0h 0m</dd>
+              </div>
+              <div>
+                <dt>Sessions</dt>
+                <dd id="weeklySessions">0</dd>
+              </div>
+              <div>
+                <dt>Daily streak</dt>
+                <dd id="weeklyStreak">0 days</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section
+            class="sidebar-widget movable-widget task-queue-card"
+            id="taskQueueWidget"
+            data-widget-name="Task queue"
+            aria-label="Task queue"
+          >
+            <div class="widget-header">
+              <button
+                type="button"
+                class="widget-title widget-drag-handle"
+                aria-label="Move Task queue card"
+                aria-describedby="widgetMoveHint"
+                title="Drag to place on screen"
+              >
+                Task queue<span class="widget-grip" aria-hidden="true">⠿</span>
+              </button>
+              <button
+                type="button"
+                class="widget-return"
+                aria-label="Return Task queue to sidebar"
+                title="Return to sidebar"
+              >
+                ↶
+              </button>
+            </div>
+            <form id="addQueueTaskForm" class="task-queue-form">
+              <label for="queueTaskInput" class="sr-only">New task</label>
+              <input
+                id="queueTaskInput"
+                type="text"
+                maxlength="120"
+                required
+                placeholder="What needs doing?"
+                autocomplete="off"
+              />
+              <button type="submit" class="pill-btn">Add</button>
+            </form>
+            <label for="queueTaskTarget" class="task-target-label"
+              >Daily target
+              <input
+                id="queueTaskTarget"
+                type="number"
+                min="1"
+                max="99"
+                value="1"
+                form="addQueueTaskForm"
+                required
+              />
+              focus sessions
+            </label>
+            <button
+              id="undoQueueDelete"
+              type="button"
+              class="profile-text-button"
+              hidden
+            >
+              Undo delete
+            </button>
+            <p id="taskQueueEmpty" class="task-queue-note">
+              Add a task, then select it for your next focus session.
+            </p>
+            <ul
+              id="taskQueueList"
+              class="task-queue-list"
+              aria-label="Pending tasks"
+            ></ul>
+            <button
+              id="clearTaskSelection"
+              class="profile-text-button"
+              type="button"
+              hidden
+            >
+              Clear selection
+            </button>
+            <button
+              id="clearCompletedTasks"
+              class="profile-text-button"
+              type="button"
+              hidden
+            >
+              Clear completed
+            </button>
+            <details
+              id="completedQueueTasks"
+              class="task-queue-completed"
+              hidden
+            >
+              <summary id="completedQueueSummary">Completed tasks</summary>
+              <ul
+                id="completedTaskQueueList"
+                class="task-queue-list"
+                aria-label="Completed tasks"
+              ></ul>
+            </details>
+            <p id="taskQueueStatus" class="task-queue-note" role="status"></p>
+          </section>
+
+          <section
+            class="sidebar-widget movable-widget ambient-card"
+            id="ambientWidget"
+            data-widget-name="Ambient sounds"
+            aria-label="Ambient sounds"
+          >
+            <div class="widget-header">
+              <button
+                type="button"
+                class="widget-title widget-drag-handle"
+                aria-label="Move Ambient sounds card"
+                aria-describedby="widgetMoveHint"
+                title="Drag to place on screen"
+              >
+                Ambient sounds<span class="widget-grip" aria-hidden="true"
+                  >⠿</span
+                >
+              </button>
+              <button
+                type="button"
+                class="widget-return"
+                aria-label="Return Ambient sounds to sidebar"
+                title="Return to sidebar"
+              >
+                ↶
+              </button>
+            </div>
+            <label for="ambientSoundSelect" class="ambient-label"
+              >Soundscape</label
+            >
+            <div class="ambient-play-row">
+              <select id="ambientSoundSelect">
+                <option value="rain">Rain</option>
+                <option value="fireplace">Fireplace</option>
+                <option value="beach">Beach</option>
+                <option value="jazz">Jazz</option>
+                <option value="cafe">Coffee shop</option>
+                <option value="white">White noise</option>
+              </select>
+              <button
+                type="button"
+                id="ambientPlayButton"
+                class="pill-btn"
+                aria-pressed="false"
+              >
+                Play
+              </button>
+            </div>
+            <label
+              for="ambientVolume"
+              class="ambient-label ambient-volume-label"
+              >Volume
+              <output id="ambientVolumeValue" for="ambientVolume"
+                >35%</output
+              ></label
+            >
+            <input
+              id="ambientVolume"
+              type="range"
+              min="0"
+              max="100"
+              value="35"
+              aria-label="Ambient volume"
+            />
+            <a id="ambientBackgroundLink"
+              class="profile-text-button"
+              href="https://www.youtube.com/watch?v=q76bMs-NwRk"
+              target="pomodoro-ambient-youtube" rel="noopener">
+              Original YouTube recording ↗
+            </a>
+            <a href="audio/credits.html" target="_blank" rel="noopener" class="profile-text-button">Audio credits</a>
+            <p id="ambientStatus" class="ambient-status" role="status"></p>
+          </section>
+
+          <!-- October Calendar Widget -->
+          <div
+            class="sidebar-widget movable-widget"
+            id="calendarWidget"
+            data-widget-name="Calendar"
+          >
+            <div class="widget-header">
+              <button
+                type="button"
+                class="widget-title widget-drag-handle"
+                aria-label="Move Calendar card"
+                aria-describedby="widgetMoveHint"
+                title="Drag to place on screen"
+              >
+                <span id="calendarMonthLabel">Calendar</span
+                ><span class="widget-grip" aria-hidden="true">⠿</span>
+              </button>
+              <button
+                type="button"
+                class="widget-return"
+                aria-label="Return Calendar to sidebar"
+                title="Return to sidebar"
+              >
+                ↶
+              </button>
+            </div>
+
+            <div class="calendar-navigation">
+              <button
+                type="button"
+                id="calendarPrevious"
+                aria-label="Previous month"
+              >
+                ‹
+              </button>
+              <button type="button" id="calendarToday">Today</button>
+              <button type="button" id="calendarNext" aria-label="Next month">
+                ›
+              </button>
+            </div>
+            <div class="cal-weekdays" aria-hidden="true">
+              <span>Mon</span><span>Tues</span><span>Wed</span><span>Thurs</span
+              ><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+            <p id="calendarKeyboardHint" class="sr-only">Use arrow keys to move by day or week; Home and End move to the start or end of the week.</p>
+            <div
+              class="cal-grid"
+              id="calendarDays"
+              aria-label="Focus history calendar"
+              aria-describedby="calendarKeyboardHint"
+            ></div>
+            <button id="openSessionHistory" type="button" class="profile-text-button" aria-haspopup="dialog">Edit history</button>
+          </div>
+        </aside>
+      </div>
+      <main class="pomodoro-main" aria-label="Pomodoro timer">
+        <!-- Centered Interactive Stage -->
+        <div class="stage-wrapper relative flex flex-col items-center">
+          <h1 class="timer-title">Pomodoro Timer</h1>
+
+          <!-- The Neumorphic Squircle Card -->
+          <div class="squircle-plate" id="plateElement">
+            <!-- Concentric Circular Socket / Trench -->
+            <div class="socket-well">
+              <!-- Central Tactile Push Button / Display -->
+              <button
+                type="button"
+                id="timerButton"
+                aria-keyshortcuts="Space"
+                class="push-button-dial"
+                onclick="handleDialPress()"
+                aria-label="Start · Focus · 25:00 remaining"
+                aria-pressed="false"
+              >
+                <!-- Digits -->
+                <span id="timeText" class="time-digits" role="timer" aria-live="off">25:00</span>
+                <!-- Soft pulsating status dot -->
+                <span class="status-indicator" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <!-- Hand-Drawn Annotation: Arrow & Note -->
+            <div class="annotation-box" id="annotationEl" aria-hidden="true">
+              <svg
+                width="34"
+                height="18"
+                viewBox="0 0 34 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M32 9C26 8 16 7.5 4 10.5"
+                  stroke="#1c1917"
+                  stroke-width="0.8"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M8 7.5L3.5 10.5L8.5 13"
+                  stroke="#1c1917"
+                  stroke-width="0.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span class="handwritten-text" id="annotationLabel"
+                >Push to start</span
+              >
+            </div>
+
+            <p class="break-message" id="breakMessage" aria-hidden="true">
+              Take a break
+            </p>
+          </div>
+
+          <p id="timerA11yStatus" class="sr-only" role="status" aria-atomic="true"></p>
+          <div class="current-task" id="currentTaskArea">
+            <label for="currentTaskInput">What are you focusing on?</label>
+            <input
+              id="currentTaskInput"
+              type="text"
+              maxlength="120"
+              placeholder="e.g. Finish my assignment"
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Discreet Mode Presets & Controls -->
+          <div class="minimal-controls mt-7 flex items-center space-x-2">
+            <button
+              class="pill-btn active"
+              id="modePomodoro"
+              onclick="setMode('pomodoro')"
+            >
+              25m
+            </button>
+            <button
+              class="pill-btn"
+              id="modeShortBreak"
+              onclick="setMode(currentMode)"
+              hidden
+            >
+              Short break · 5m
+            </button>
+            <button
+              class="pill-btn"
+              id="skipBreakButton"
+              onclick="skipBreak()"
+              hidden
+            >
+              Skip break
+            </button>
+            <button id="resetTimerButton" class="pill-btn" onclick="resetTimer()" title="Reset Timer (R)" aria-keyshortcuts="R">
+              Reset
+            </button>
+            <button id="miniTimerButton" type="button" class="pill-btn" aria-pressed="false" title="Open mini timer">Mini ↗</button>
+            <button
+              class="pill-btn"
+              id="muteToggle"
+              onclick="toggleAudio()"
+              title="Toggle Sound"
+              aria-label="Mute timer sounds"
+              aria-pressed="false"
+            >
+              🔊
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <p id="widgetMoveHint" class="widget-move-hint">
+      Drag the title to move this card. Or press Enter to place it on screen,
+      then use arrow keys to move it. Hold Shift for larger steps. Press Escape
+      to return it to the sidebar.
+    </p>
+    <input
+      type="file"
+      id="avatarUploadInput"
+      accept="image/png,image/jpeg,image/webp"
+      hidden
+    />
+
+    <dialog
+      id="profileDialog"
+      class="profile-dialog"
+      aria-labelledby="profileDialogTitle"
+    >
+      <form id="profileForm" novalidate>
+        <header class="profile-dialog-header">
+          <h2 id="profileDialogTitle">Your profile</h2>
+          <p class="profile-save-note">Saved on this browser.</p>
+        </header>
+        <div class="profile-tabs" role="tablist" aria-label="Profile settings">
+          <button
+            type="button"
+            id="profileTab-profile"
+            role="tab"
+            aria-selected="true"
+            aria-controls="profilePanel-profile"
+            tabindex="0"
+          >
+            Profile
+          </button>
+          <button
+            type="button"
+            id="profileTab-timer"
+            role="tab"
+            aria-selected="false"
+            aria-controls="profilePanel-timer"
+            tabindex="-1"
+          >
+            Timer
+          </button>
+          <button
+            type="button"
+            id="profileTab-notifications"
+            role="tab"
+            aria-selected="false"
+            aria-controls="profilePanel-notifications"
+            tabindex="-1"
+          >
+            Notifications
+          </button>
+          <button
+            type="button"
+            id="profileTab-backup"
+            role="tab"
+            aria-selected="false"
+            aria-controls="profilePanel-backup"
+            tabindex="-1"
+          >
+            Backup &amp; Restore
+          </button>
+        </div>
+        <div id="profilePanelScroll" class="profile-panel-scroll">
+          <section
+            id="profilePanel-profile"
+            role="tabpanel"
+            aria-labelledby="profileTab-profile"
+            tabindex="0"
+          >
+            <p class="profile-save-note">Profile details are optional and stay in this browser. You can use a nickname or leave the name blank for Guest.</p>
+            <label for="profileNameInput">Display name (optional)</label>
+            <input
+              id="profileNameInput"
+              type="text"
+              maxlength="50"
+              placeholder="Guest"
+              autocomplete="nickname"
+            />
+            <label for="profileRoleInput">About you (optional)</label>
+            <input
+              id="profileRoleInput"
+              type="text"
+              maxlength="70"
+              placeholder="e.g. Computer Science Student"
+            />
+            <label for="profilePhotoInput">Profile photo (optional)</label>
+            <input
+              id="profilePhotoInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+            />
+            <p class="profile-save-note">PNG, JPG or WebP · up to 2 MB</p>
+            <button
+              type="button"
+              class="profile-text-button"
+              id="removeProfilePhoto"
+            >
+              Use default avatar
+            </button>
+          </section>
+          <section
+            id="profilePanel-timer"
+            role="tabpanel"
+            aria-labelledby="profileTab-timer"
+            hidden
+            tabindex="0"
+          >
+            <label for="dailyGoalInput">Daily focus goal</label>
+            <input
+              id="dailyGoalInput"
+              type="number"
+              min="1"
+              max="99"
+              step="1"
+              required
+              inputmode="numeric"
+              aria-describedby="dailyGoalHint"
+            />
+            <p id="dailyGoalHint" class="profile-save-note">
+              Focus sessions per day (1–99). Each completed Pomodoro fills one
+              bead.
+            </p>
+            <fieldset class="timer-duration-settings focus-preset-settings">
+              <legend>Focus presets</legend>
+              <label for="focusPresetSelect">Routine</label>
+              <select id="focusPresetSelect" aria-describedby="focusPresetHint"></select>
+              <p id="focusPresetHint" class="profile-save-note">Choose a routine, or set durations below and save your own. Save profile to apply.</p>
+              <label for="focusPresetName">Custom routine name</label>
+              <input id="focusPresetName" type="text" maxlength="30" placeholder="e.g. Reading" />
+              <div class="preset-actions">
+                <button id="saveFocusPreset" type="button" class="profile-text-button">Save routine</button>
+                <button id="deleteFocusPreset" type="button" class="profile-text-button" disabled>Delete routine</button>
+              </div>
+              <p id="focusPresetStatus" class="profile-save-note" role="status"></p>
+            </fieldset>
+            <fieldset class="timer-duration-settings">
+              <legend>Timer durations</legend>
+              <div class="timer-duration-grid">
+                <div>
+                  <label for="focusMinutesInput">Focus</label
+                  ><input
+                    id="focusMinutesInput"
+                    type="number"
+                    min="1"
+                    max="180"
+                    step="1"
+                    required
+                    inputmode="numeric"
+                  />
+                </div>
+                <div>
+                  <label for="shortBreakMinutesInput">Short break</label
+                  ><input
+                    id="shortBreakMinutesInput"
+                    type="number"
+                    min="1"
+                    max="180"
+                    step="1"
+                    required
+                    inputmode="numeric"
+                  />
+                </div>
+                <div>
+                  <label for="longBreakMinutesInput">Long break</label
+                  ><input
+                    id="longBreakMinutesInput"
+                    type="number"
+                    min="1"
+                    max="180"
+                    step="1"
+                    required
+                    inputmode="numeric"
+                  />
+                </div>
+              </div>
+              <p class="profile-save-note">
+                Minutes (1–180). Choose your long-break cycle below.
+              </p>
+              <p class="profile-save-note">
+                Running or paused sessions keep their current duration. New
+                settings apply to the next session.
+              </p>
+            </fieldset>
+            <fieldset class="timer-duration-settings">
+              <legend>Session flow</legend>
+              <label for="longBreakIntervalInput">Long break after</label>
+              <div class="interval-setting">
+                <input
+                  id="longBreakIntervalInput"
+                  type="number"
+                  min="1"
+                  max="12"
+                  step="1"
+                  value="4"
+                  required
+                  aria-describedby="longBreakIntervalHint"
+                />
+                <span id="longBreakIntervalHint"
+                  >completed focus sessions (1–12)</span
+                >
+              </div>
+              <label class="profile-task-option" for="autoStartBreaksInput">
+                <span>Auto-start breaks</span>
+                <input
+                  id="autoStartBreaksInput"
+                  type="checkbox"
+                  role="switch"
+                />
+              </label>
+              <label class="profile-task-option" for="autoStartFocusInput">
+                <span>Auto-start focus after breaks</span>
+                <input id="autoStartFocusInput" type="checkbox" role="switch" />
+              </label>
+              <p class="profile-save-note">
+                Applies when a session finishes. Reopening an expired timer
+                waits for you to start.
+              </p>
+            </fieldset>
+            <label class="profile-task-option" for="preFinishCueInput">
+              <span>One-minute focus cue</span>
+              <input id="preFinishCueInput" type="checkbox" role="switch" aria-describedby="preFinishCueHint" />
+            </label>
+            <p id="preFinishCueHint" class="profile-save-note">A soft chime once when one minute remains in a focus session. Respects mute; off by default.</p>
+            <button id="testPreFinishCue" type="button" class="profile-text-button">Preview cue</button>
+            <p id="preFinishCueTestStatus" class="profile-save-note" role="status"></p>
+            <p class="profile-save-note">Keyboard: Space to start/pause · R to reset. Shortcuts stay inactive while typing or using a dialog or control.</p>
+            <label class="profile-task-option" for="showCurrentTaskInput">
+              <span>Show “What are you focusing on?”</span>
+              <input
+                id="showCurrentTaskInput"
+                type="checkbox"
+                role="switch"
+                aria-describedby="currentTaskSettingHint"
+              />
+            </label>
+            <p id="currentTaskSettingHint" class="profile-save-note">
+              Add a task beneath the timer and include it in session history.
+            </p>
+          </section>
+          <section
+            id="profilePanel-notifications"
+            role="tabpanel"
+            aria-labelledby="profileTab-notifications"
+            hidden
+            tabindex="0"
+          >
+            <label class="profile-task-option" for="desktopNotificationsInput">
+              <span>Desktop notifications</span>
+              <input
+                id="desktopNotificationsInput"
+                type="checkbox"
+                role="switch"
+                aria-describedby="notificationSettingsStatus"
+              />
+            </label>
+            <p
+              id="notificationSettingsStatus"
+              class="profile-save-note"
+              role="status"
+            ></p>
+            <button
+              id="testNotificationButton"
+              type="button"
+              class="profile-text-button"
+              disabled
+            >
+              Send test notification
+            </button>
+            <p class="profile-save-note">
+              Keep this tab open for alerts. Your browser or system may delay
+              notifications while asleep.
+            </p>
+          </section>
+          <section
+            id="profilePanel-backup"
+            role="tabpanel"
+            aria-labelledby="profileTab-backup"
+            hidden
+            tabindex="0"
+          >
+            <fieldset class="timer-duration-settings backup-settings">
+              <legend>Backup &amp; restore</legend>
+              <div class="backup-actions">
+                <button id="exportBackupButton" type="button" class="pill-btn">
+                  Export backup
+                </button>
+                <label
+                  for="importBackupInput"
+                  class="pill-btn backup-file-label"
+                  >Choose backup</label
+                >
+                <input
+                  id="importBackupInput"
+                  type="file"
+                  accept="application/json,.json"
+                  class="sr-only"
+                />
+              </div>
+              <p class="profile-save-note">
+                Includes profile, photo, tasks and history. Store your backup
+                somewhere private.
+              </p>
+              <p id="backupStatus" role="status" class="profile-save-note"></p>
+              <nav class="site-info-links" aria-label="Website information"><a href="help.html" target="_blank" rel="noopener">Help</a><a href="privacy.html" target="_blank" rel="noopener">Privacy &amp; saved data</a><a href="audio/credits.html" target="_blank" rel="noopener">Audio credits</a></nav>
+              <button
+                id="undoBackupRestore"
+                type="button"
+                class="pill-btn undo-restore-button"
+                hidden
+              >
+                Undo restore
+              </button>
+            </fieldset>
+          </section>
+        </div>
+        <footer class="profile-dialog-footer">
+          <p
+            id="profileFormStatus"
+            role="status"
+            class="profile-form-status"
+          ></p>
+          <div class="profile-form-actions">
+            <button
+              type="button"
+              id="cancelProfile"
+              class="profile-text-button"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              id="saveProfileButton"
+              class="btn-edit-profile"
+            >
+              Save profile
+            </button>
+          </div>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog
+      id="queueTaskEditor"
+      class="profile-dialog"
+      aria-labelledby="taskEditorTitle"
+    >
+      <form id="editQueueTaskForm">
+        <h2 id="taskEditorTitle">Edit task</h2>
+        <label for="editQueueTaskName">Task name</label>
+        <input id="editQueueTaskName" type="text" maxlength="120" required />
+        <label for="editQueueTaskTarget">Daily focus target</label>
+        <input
+          id="editQueueTaskTarget"
+          type="number"
+          min="1"
+          max="99"
+          required
+        />
+        <p class="profile-save-note">
+          Completed sessions stay linked to this task. Daily progress resets
+          each day.
+        </p>
+        <div class="profile-form-actions">
+          <button
+            id="cancelQueueTaskEdit"
+            type="button"
+            class="profile-text-button"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn-edit-profile">Save task</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="restoreBackupDialog"
+      class="profile-dialog"
+      aria-labelledby="restoreBackupTitle"
+    >
+      <h2 id="restoreBackupTitle">Restore backup?</h2>
+      <p id="restoreBackupPreview" class="profile-save-note"></p>
+      <p class="profile-save-note">
+        This replaces your saved profile, tasks, history and layout, and resets
+        the timer. Current data is kept for Undo restore until the next restore.
+      </p>
+      <p id="restoreBackupStatus" role="status" class="profile-save-note"></p>
+      <div class="profile-form-actions">
+        <button
+          id="cancelRestoreBackup"
+          type="button"
+          class="profile-text-button"
+        >
+          Cancel
+        </button>
+        <button
+          id="confirmRestoreBackup"
+          type="button"
+          class="btn-edit-profile"
+        >
+          Restore backup
+        </button>
+      </div>
+    </dialog>
+
+    <dialog id="sessionHistoryDialog" class="profile-dialog session-history-dialog" aria-labelledby="sessionHistoryTitle">
+      <div class="history-toolbar"><h2 id="sessionHistoryTitle">Session history</h2><button id="closeSessionHistory" type="button" class="profile-text-button">Close</button></div>
+      <label for="sessionHistoryDate">Date</label>
+      <input id="sessionHistoryDate" type="date" />
+      <div class="history-toolbar"><button id="allSessionHistory" type="button" class="profile-text-button">All sessions</button><button id="undoSessionHistory" type="button" class="profile-text-button">Undo last change</button></div>
+      <p id="sessionHistoryStatus" role="status" class="profile-save-note"></p>
+      <form id="sessionHistoryEditForm" hidden>
+        <h3>Edit session task</h3>
+        <label for="sessionHistoryQueue">Link to a queued task</label><select id="sessionHistoryQueue"></select>
+        <label for="sessionHistoryTask">Task label</label><input id="sessionHistoryTask" type="text" maxlength="120" placeholder="Focus session" />
+        <div class="profile-form-actions"><button id="cancelSessionHistoryEdit" type="button" class="profile-text-button">Cancel</button><button type="submit" class="btn-edit-profile">Save session</button></div>
+      </form>
+      <ul id="sessionHistoryList" class="session-history-list" aria-label="Completed focus sessions"></ul>
+      <button id="moreSessionHistory" type="button" class="profile-text-button" hidden>Show more</button>
+    </dialog>
+
+    <div id="historyPopup" class="history-popup" role="tooltip" hidden>
+      <p id="historyPopupDate" class="history-popup-date"></p>
+      <div
+        id="historyPopupBeads"
+        class="history-popup-beads"
+        aria-hidden="true"
+        hidden
+      ></div>
+      <p id="historyPopupSessions" class="history-popup-sessions"></p>
+      <p id="historyPopupDuration" class="history-popup-duration"></p>
+      <ul id="historyPopupTasks" class="history-popup-tasks" hidden></ul>
+    </div>
+
+    <p id="miniTimerStatus" class="persistence-note" role="status" hidden></p>
+    <p id="persistenceStatus" class="persistence-note" role="status" hidden></p>
+    </div>
+    <script src="tab-coordination.js"></script>
+  </body>
+</html>
