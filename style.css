@@ -451,10 +451,12 @@ body {
   background: rgba(255, 255, 255, 0.4);
 }
 
-/* Circular border on active day (24th) */
+/* Roomy circular border around the selected calendar date. */
 .cal-day-cell.active-date .day-num {
-  width: 17px;
-  height: 17px;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
