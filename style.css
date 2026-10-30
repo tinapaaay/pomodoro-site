@@ -2220,17 +2220,17 @@ body {
 
 /* Sidebar type roles stay readable in both docked and floating cards. */
 .sidebar-panel, .movable-widget {
-  --sidebar-heading-size: 1.0625rem;
-  --sidebar-body-size: 0.875rem;
-  --sidebar-detail-size: 0.75rem;
+  --sidebar-heading-size: 0.75rem;
+  --sidebar-body-size: 0.6875rem;
+  --sidebar-detail-size: 0.625rem;
 }
-.quote-text { font-size: 1rem; line-height: 1.5; }
+.quote-text { font-size: 0.75rem; line-height: 1.5; }
 .sidebar-widget .widget-title { font-size: var(--sidebar-heading-size); line-height: 1.4; }
 .sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button,
     .task-queue-select, .ambient-play-row select, .calendar-navigation button,
     .task-queue-completed, .task-target-label),
 .sidebar-panel > .reset-layout-button, .widget-placeholder {
-  font-size: 0.875rem;
+  font-size: var(--sidebar-body-size);
   line-height: 1.5;
 }
 .sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button) { min-height: 40px; }
@@ -2241,18 +2241,18 @@ body {
   line-height: 1.5;
 }
 .sidebar-widget .task-queue-select { font-size: var(--sidebar-body-size); }
-.sidebar-widget .weekly-stats-grid dd { font-size: 1.125rem; }
+.sidebar-widget .weekly-stats-grid dd { font-size: 0.875rem; }
 .sidebar-widget .weekly-stats-grid { gap: 8px; }
 .sidebar-widget .cal-weekdays { font-size: var(--sidebar-detail-size); }
 .sidebar-widget .cal-grid { font-size: var(--sidebar-body-size); row-gap: 6px; }
 .sidebar-widget .cal-day-cell { height: 36px; }
 .sidebar-widget .calendar-extra { font-size: 0.625rem; line-height: 1; }
 .sidebar-widget .calendar-navigation button:first-child,
-.sidebar-widget .calendar-navigation button:last-child { font-size: 1.125rem; }
+.sidebar-widget .calendar-navigation button:last-child { font-size: 1rem; }
 .sidebar-widget .ambient-play-row { flex-wrap: wrap; gap: 10px; }
 .sidebar-widget .ambient-play-row select { flex-basis: 140px; }
 .sidebar-widget .task-row-actions { flex-shrink: 0; }
-.sidebar-widget .user-name { font-size: 1.125rem; line-height: 1.4; }
+.sidebar-widget .user-name { font-size: var(--sidebar-heading-size); line-height: 1.4; }
 .profile-card :is(.user-role, .user-joined, .user-focus) {
   font-size: var(--sidebar-detail-size);
   line-height: 1.5;
@@ -2266,10 +2266,10 @@ body {
   }
   .sidebar-widget:not(.profile-card) { padding: 24px 20px; }
   .profile-card .avatar-wrapper { width: 96px; }
-  .sidebar-widget .task-queue-form input { font-size: 0.875rem; }
+  .sidebar-widget .task-queue-form input { font-size: var(--sidebar-body-size); }
 }
 @media (max-width: 640px), (pointer: coarse) {
   .sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button) { min-height: 44px; }
   .sidebar-widget .ambient-play-row select { font-size: 1rem; }
-  .sidebar-widget .user-name { font-size: 1rem; }
+  .sidebar-widget .user-name { font-size: var(--sidebar-heading-size); }
 }
