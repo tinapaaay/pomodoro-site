@@ -1113,13 +1113,13 @@ body {
   }
 }
 
-/* Compact the sidebar uniformly without changing the timer or spacing. */
+/* Slide the sidebar without shrinking text or touch targets. */
 .sidebar-shell .sidebar-panel {
   transform-origin: top left;
-  transform: translateX(-12px) scale(0.78);
+  transform: translateX(-12px);
 }
 .sidebar-shell.is-open .sidebar-panel {
-  transform: translateX(0) scale(0.78);
+  transform: translateX(0);
 }
 
 /* Custom daily session goals wrap neatly for larger targets. */
@@ -2216,4 +2216,60 @@ body {
 @media (forced-colors: active) {
   button, input, select, .squircle-plate, .sidebar-widget { border: 1px solid ButtonText; }
   .goal-bead.active { outline: 2px solid Highlight; }
+}
+
+/* Sidebar type roles stay readable in both docked and floating cards. */
+.sidebar-panel, .movable-widget {
+  --sidebar-heading-size: 1.0625rem;
+  --sidebar-body-size: 0.875rem;
+  --sidebar-detail-size: 0.75rem;
+}
+.quote-text { font-size: 1rem; line-height: 1.5; }
+.sidebar-widget .widget-title { font-size: var(--sidebar-heading-size); line-height: 1.4; }
+.sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button,
+    .task-queue-select, .ambient-play-row select, .calendar-navigation button,
+    .task-queue-completed, .task-target-label),
+.sidebar-panel > .reset-layout-button, .widget-placeholder {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button) { min-height: 40px; }
+.sidebar-widget :is(.ambient-label, .ambient-status, .ambient-background-link,
+    .profile-text-button, .task-queue-note, .task-queue-select small,
+    .weekly-stats-range, .weekly-stats-grid dt) {
+  font-size: var(--sidebar-detail-size);
+  line-height: 1.5;
+}
+.sidebar-widget .task-queue-select { font-size: var(--sidebar-body-size); }
+.sidebar-widget .weekly-stats-grid dd { font-size: 1.125rem; }
+.sidebar-widget .weekly-stats-grid { gap: 8px; }
+.sidebar-widget .cal-weekdays { font-size: var(--sidebar-detail-size); }
+.sidebar-widget .cal-grid { font-size: var(--sidebar-body-size); row-gap: 6px; }
+.sidebar-widget .cal-day-cell { height: 36px; }
+.sidebar-widget .calendar-extra { font-size: 0.625rem; line-height: 1; }
+.sidebar-widget .calendar-navigation button:first-child,
+.sidebar-widget .calendar-navigation button:last-child { font-size: 1.125rem; }
+.sidebar-widget .ambient-play-row { flex-wrap: wrap; gap: 10px; }
+.sidebar-widget .ambient-play-row select { flex-basis: 140px; }
+.sidebar-widget .task-row-actions { flex-shrink: 0; }
+.sidebar-widget .user-name { font-size: 1.125rem; line-height: 1.4; }
+.profile-card :is(.user-role, .user-joined, .user-focus) {
+  font-size: var(--sidebar-detail-size);
+  line-height: 1.5;
+}
+.sidebar-widget .user-name, .sidebar-widget .user-focus,
+.sidebar-widget .weekly-stats-range { overflow-wrap: anywhere; }
+@media (min-width: 641px) {
+  .sidebar-shell .sidebar-panel {
+    width: min(360px, calc(100vw - 48px));
+    padding: 26px 24px;
+  }
+  .sidebar-widget:not(.profile-card) { padding: 24px 20px; }
+  .profile-card .avatar-wrapper { width: 96px; }
+  .sidebar-widget .task-queue-form input { font-size: 0.875rem; }
+}
+@media (max-width: 640px), (pointer: coarse) {
+  .sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button) { min-height: 44px; }
+  .sidebar-widget .ambient-play-row select { font-size: 1rem; }
+  .sidebar-widget .user-name { font-size: 1rem; }
 }
