@@ -2220,11 +2220,11 @@ body {
 
 /* Sidebar type roles stay readable in both docked and floating cards. */
 .sidebar-panel, .movable-widget {
-  --sidebar-heading-size: 0.75rem;
-  --sidebar-body-size: 0.6875rem;
+  --sidebar-heading-size: 0.6875rem;
+  --sidebar-body-size: 0.625rem;
   --sidebar-detail-size: 0.625rem;
 }
-.quote-text { font-size: 0.75rem; line-height: 1.5; }
+.quote-text { font-size: 0.6875rem; line-height: 1.5; }
 .sidebar-widget .widget-title { font-size: var(--sidebar-heading-size); line-height: 1.4; }
 .sidebar-widget :is(.pill-btn, .btn-edit-profile, .task-action-button,
     .task-queue-select, .ambient-play-row select, .calendar-navigation button,
@@ -2241,7 +2241,7 @@ body {
   line-height: 1.5;
 }
 .sidebar-widget .task-queue-select { font-size: var(--sidebar-body-size); }
-.sidebar-widget .weekly-stats-grid dd { font-size: 0.875rem; }
+.sidebar-widget .weekly-stats-grid dd { font-size: 0.75rem; }
 .sidebar-widget .weekly-stats-grid { gap: 8px; }
 .sidebar-widget .cal-weekdays { font-size: var(--sidebar-detail-size); }
 .sidebar-widget .cal-grid { font-size: var(--sidebar-body-size); row-gap: 6px; }
